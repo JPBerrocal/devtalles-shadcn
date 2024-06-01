@@ -71,3 +71,7 @@ Thumbs.db
 # Snapshots
 __snapshots__/
 
+# next.js
+/.next/
+.next/
+/out/
