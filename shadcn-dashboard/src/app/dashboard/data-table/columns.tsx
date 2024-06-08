@@ -1,9 +1,10 @@
 "use client"
 
 import { Payment } from "@/data/payments.data"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, SortDirection } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,22 +13,54 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+
+import { CaretSortIcon, ChevronDownIcon, ChevronUpIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 
 import {toast} from "sonner";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
+const SortedIcon = ({isSorted}: {isSorted: false | SortDirection}) => {
+  if(isSorted === "asc") {
+    return <ChevronUpIcon className="h-4 w-4" />
+  }
+  if(isSorted === "desc") {
+    return <ChevronDownIcon className="h-4 w-4" />
+  }
+
+  return <CaretSortIcon className="h-5 w-5"/>;
+}
+
 
 export const columns: ColumnDef<Payment>[] = [
     {
         accessorKey: "clientName",
-        header: "Client Name",
+        header: ({ column }) => {
+        return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Client Name
+              <SortedIcon isSorted={column.getIsSorted()}/>
+            </Button>
+          )
+        },
     },
     {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => {
+        return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Status
+              <SortedIcon isSorted={column.getIsSorted()}/>
+            </Button>
+          )
+        },
     cell: ({ row }) => {
         const status = row.getValue("status") as string;
         
@@ -43,7 +76,19 @@ export const columns: ColumnDef<Payment>[] = [
     },
     {
         accessorKey: "amount",
-        header:  () => <div className="text-right">Amount</div>,
+        
+        header: ({ column }) => {
+        return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Amount
+              <SortedIcon isSorted={column.getIsSorted()}/>
+            </Button>
+          )
+        },
+        //header:  () => <div className="text-right">Amount</div>,
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue("amount"))
             const formatted = new Intl.NumberFormat("en-US", {
@@ -56,7 +101,17 @@ export const columns: ColumnDef<Payment>[] = [
     },
     {
         accessorKey: "email",
-        header: "Email",
+        header: ({ column }) => {
+        return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Email
+              <SortedIcon isSorted={column.getIsSorted()}/>
+            </Button>
+          )
+        },
     },
      {
     id: "actions",
