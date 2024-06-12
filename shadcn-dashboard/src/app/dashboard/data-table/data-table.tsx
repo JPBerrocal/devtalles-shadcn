@@ -40,6 +40,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Payment } from "@/data/payments.data";
 
 
 
@@ -57,6 +58,9 @@ export function DataTable<TData, TValue>({
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [currentStatus, setCurrentStatus] = useState("all");
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+    const [rowSelection, setRowSelection] = useState({});
+
+    const haveRowsSelected = Object.keys(rowSelection).length > 0;
   
     const table = useReactTable({
     data,
@@ -68,10 +72,12 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
     },
   })
 
@@ -79,7 +85,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter emails..."
+          placeholder="Filter anything..."
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) => {
             setCurrentStatus("all");
@@ -115,6 +121,30 @@ export function DataTable<TData, TValue>({
             </SelectGroup>
           </SelectContent>
         </Select>
+
+        
+        {
+          haveRowsSelected && (
+            <Button variant="destructive" className="ml-2" onClick={() => {
+                  
+                  /* table.getSelectedRowModel().rows.forEach((row) => {
+                    console.log(row.original);
+                  }); */
+
+                  const ids = table.getSelectedRowModel().rows.map((row) => {
+                    return (row.original as Payment).clientName;
+                  });
+                  
+                  console.log(ids);
+
+              }}
+            >
+              Delete
+            </Button>
+          )
+        }
+        
+        
         
          <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -191,24 +221,56 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-end space-x-2 py-4 mx-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+
+      <div className="space-x-2 py-4 mx-2 flex justify-between items-center">
+        
+        <div className="flex-1 text-sm text-muted-foreground justify-end">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+
+
+        <div className="flex items-center justify-end space-x-2 py-4 mx-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+
       </div>
+      
+      <Select
+        onValueChange={(value) => {
+          table.setPageSize(Number(value));
+        }}
+      >
+        <SelectTrigger className="w-[180px] m-2">
+          <SelectValue placeholder="10 Rows" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Rows per page</SelectLabel>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="20">20</SelectItem>
+            <SelectItem value="30">30</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
       </div>
     </div> 
   )
